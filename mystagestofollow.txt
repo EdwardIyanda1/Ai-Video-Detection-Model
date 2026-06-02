@@ -1,0 +1,36 @@
+1. Preprocessing (Region of Interest Extraction)
+
+Preprocessing aims to reduce the "noise" (background, irrelevant textures) and isolate the specific area where the potential manipulation is located. For facial manipulation, libraries like MediaPipe are highly effective because they provide pre-trained landmarks.
+
+Normalization: Scaling pixel values (typically from [0, 255] to [0, 1] or [-1, 1]) ensures consistent input for your neural network.
+
+ROI Extraction: Instead of processing the whole video frame, extract only the bounding box of the face. This significantly improves the model's sensitivity to small details like eye-glint patterns or skin texture inconsistencies.
+
+2. Feature Extraction & Classification
+
+Once your ROIs (like faces) are extracted, they become the input for your classifier.
+
+CNNs (Convolutional Neural Networks): These are excellent at spatial feature extraction. They detect "low-level" artifacts like compression noise, edge blurring, or unnatural color distributions that human eyes often miss.
+
+ViTs (Vision Transformers): A newer approach that divides images into patches and analyzes the relationship between these patches. They are proving very effective at identifying global inconsistencies that CNNs might overlook.
+
+The Classifier: You would define a binary classification head on top of these architectures, which outputs a probability score—e.g., 
+P
+(
+manipulated
+∣
+frame
+)
+P(manipulated∣frame).
+
+3. Metadata Forensics
+
+While visual analysis detects content manipulation, metadata analysis detects file manipulation. This is often the quickest way to flag "low-effort" AI edits.
+
+What to check: Use libraries like Pillow (for images) or ExifRead. You are looking for:
+
+Software tags: Does the metadata list Adobe Premiere, After Effects, or specific AI generative software?
+
+Inconsistencies: If the video claims to be from a specific smartphone but the internal codec settings or resolution don’t match that device’s typical output, it is a red flag.
+
+Missing Data: AI-generated or heavily edited files often strip away the original "Camera Model" or "Date Taken" tags.
