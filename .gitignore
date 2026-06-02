@@ -1,1 +1,4 @@
 venv/
+data/processed/faces/
+dataset/train/manipulated/
+data/raw/faces/1000547533.mp4

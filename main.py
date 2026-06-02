@@ -3,7 +3,27 @@ import os
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
+class AiDetectorCNN(nn.Module):
+    def __init__(self):
+        super(AiDetectorCNN, self).__init__()
+        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.fc1 = nn.Linear(64 * 56 * 56, 128)
+        self.fc2 = nn.Linear(128, 1)
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 64 * 56 * 56)
+        x = F.relu(self.fc1(x))
+        x = torch.sigmoid(self.fc2(x))
+        return x
+    
 def extract_and_save_roi(video_path, output_folder):
     print(f"--- Starting ROI Extraction ---")
     
@@ -64,4 +84,5 @@ def extract_and_save_roi(video_path, output_folder):
     
     print(f"--- Finished! Processed {frame_count} frames. Extracted {roi_count} face ROIs. ---")
 
-# extract_and_save_roi('data/raw/1000547533.mp4', 'data/processed/faces')
+if __name__ == "__main__":
+    extract_and_save_roi('data/raw/1000547533.mp4', 'data/processed/faces')
